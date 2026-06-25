@@ -26,9 +26,11 @@ import { mockBricks, financialSummary, monthlyEvolution } from '../data/mockData
 const Dashboard = () => {
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
-      <header>
-        <h2 className="text-3xl font-bold text-white mb-2">Visão Geral</h2>
-        <p className="text-muted">Bem-vindo de volta! Aqui está o resumo do seu crescimento hoje.</p>
+      <header className="space-y-2">
+        <h1 className="text-5xl font-extrabold tracking-tighter text-white">
+          Visão <span className="text-primary">Geral</span>
+        </h1>
+        <p className="text-muted text-lg font-medium">Bem-vindo de volta! Aqui está o resumo do seu crescimento hoje.</p>
       </header>
 
       {/* Metric Cards */}
@@ -120,23 +122,23 @@ const Dashboard = () => {
       </div>
 
       {/* Recent Bricks Table */}
-      <Card>
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-lg font-semibold text-white">Últimos Bricks</h3>
-          <button className="text-primary text-sm font-medium hover:underline">Ver todos</button>
+      <Card className="p-8">
+        <div className="flex justify-between items-center mb-8">
+          <h3 className="text-2xl font-bold text-white tracking-tight">Últimos Bricks</h3>
+          <button className="text-primary text-sm font-bold uppercase tracking-widest hover:underline decoration-2 underline-offset-8">Ver todos</button>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-slate-800">
-                <th className="pb-4 text-sm font-medium text-muted">Produto</th>
-                <th className="pb-4 text-sm font-medium text-muted">Status</th>
-                <th className="pb-4 text-sm font-medium text-muted text-right">Compra</th>
-                <th className="pb-4 text-sm font-medium text-muted text-right">Venda</th>
-                <th className="pb-4 text-sm font-medium text-muted text-right">Lucro</th>
+              <tr className="border-b border-card-border">
+                <th className="pb-6 text-[10px] font-bold uppercase tracking-[0.2em] text-muted">Produto</th>
+                <th className="pb-6 text-[10px] font-bold uppercase tracking-[0.2em] text-muted">Status</th>
+                <th className="pb-6 text-[10px] font-bold uppercase tracking-[0.2em] text-muted text-right">Compra</th>
+                <th className="pb-6 text-[10px] font-bold uppercase tracking-[0.2em] text-muted text-right">Venda</th>
+                <th className="pb-6 text-[10px] font-bold uppercase tracking-[0.2em] text-muted text-right">Lucro</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800">
+            <tbody className="divide-y divide-card-border">
               {mockBricks.slice(0, 3).map((brick) => (
                 <tr key={brick.id} className="group hover:bg-white/5 transition-colors">
                   <td className="py-4 font-medium text-white">{brick.name}</td>
@@ -158,15 +160,16 @@ const Dashboard = () => {
       </Card>
       
       {/* Insights */}
-      <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 flex flex-col md:flex-row items-center gap-6">
-        <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary shrink-0">
-          <ArrowUpRight size={28} />
+      <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-white/5 rounded-[2.5rem] p-10 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group">
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/10 blur-[100px] rounded-full group-hover:bg-primary/20 transition-colors duration-700" />
+        <div className="w-16 h-16 rounded-2xl bg-primary shadow-[0_0_30px_rgba(59,130,246,0.5)] flex items-center justify-center text-white shrink-0 rotate-3">
+          <ArrowUpRight size={32} strokeWidth={2.5} />
         </div>
-        <div className="flex-1">
-          <h4 className="text-white font-semibold mb-1">Insight Inteligente</h4>
-          <p className="text-muted text-sm">Seu lucro médio aumentou 18% em relação ao mês anterior. A categoria de celulares representa 72% do seu faturamento atual. Considere reinvestir o lucro do iPhone 13 em novos acessórios.</p>
+        <div className="flex-1 relative z-10">
+          <h4 className="text-2xl font-bold text-white mb-2 tracking-tight">Insight Inteligente</h4>
+          <p className="text-slate-400 text-lg leading-relaxed font-medium">Seu lucro médio aumentou <span className="text-emerald-400 font-bold">18%</span> em relação ao mês anterior. A categoria de celulares representa <span className="text-primary font-bold">72%</span> do seu faturamento atual.</p>
         </div>
-        <Badge variant="blue">Premium</Badge>
+        <Badge variant="blue" className="relative z-10">Inteligência Artificial</Badge>
       </div>
     </div>
   );

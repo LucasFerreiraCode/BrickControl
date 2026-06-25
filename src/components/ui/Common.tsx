@@ -1,5 +1,4 @@
 import React from 'react';
-import { LucideIcon } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -8,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const Card = ({ children, className }: { children: React.ReactNode; className?: string }) => (
-  <div className={cn("bg-card border border-slate-800 rounded-2xl p-6 shadow-sm", className)}>
+  <div className={cn("premium-card", className)}>
     {children}
   </div>
 );
@@ -20,16 +19,16 @@ export const Button = ({
   ...props 
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'danger' | 'ghost' }) => {
   const variants = {
-    primary: "bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20",
-    secondary: "bg-white/5 text-white hover:bg-white/10 border border-white/5",
-    danger: "bg-danger text-white hover:bg-danger/90 shadow-lg shadow-danger/20",
+    primary: "bg-primary text-white hover:brightness-110 shadow-[0_0_20px_rgba(59,130,246,0.3)]",
+    secondary: "bg-white/5 text-white hover:bg-white/10 border border-white/10",
+    danger: "bg-rose-600 text-white hover:bg-rose-700 shadow-[0_0_20px_rgba(225,29,72,0.3)]",
     ghost: "bg-transparent text-muted hover:text-white"
   };
 
   return (
     <button 
       className={cn(
-        "px-4 py-2.5 rounded-xl font-medium transition-all duration-200 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2",
+        "px-6 py-3 rounded-2xl font-semibold tracking-wide transition-all duration-300 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2",
         variants[variant],
         className
       )}
@@ -42,15 +41,15 @@ export const Button = ({
 
 export const Badge = ({ children, variant = 'gray' }: { children: React.ReactNode; variant?: 'green' | 'blue' | 'yellow' | 'red' | 'gray' }) => {
   const colors = {
-    green: "bg-success/10 text-success border-success/20",
+    green: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
     blue: "bg-primary/10 text-primary border-primary/20",
-    yellow: "bg-warning/10 text-warning border-warning/20",
-    red: "bg-danger/10 text-danger border-danger/20",
-    gray: "bg-slate-700/50 text-slate-400 border-slate-700"
+    yellow: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+    red: "bg-rose-500/10 text-rose-400 border-rose-500/20",
+    gray: "bg-slate-800/50 text-slate-400 border-slate-700"
   };
 
   return (
-    <span className={cn("px-2.5 py-0.5 rounded-full text-xs font-semibold border", colors[variant])}>
+    <span className={cn("px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest border", colors[variant])}>
       {children}
     </span>
   );
@@ -59,41 +58,37 @@ export const Badge = ({ children, variant = 'gray' }: { children: React.ReactNod
 export const StatCard = ({ title, value, icon: Icon, trend, color = 'blue' }: { 
   title: string; 
   value: string; 
-  icon: LucideIcon; 
+  icon: React.ElementType; 
   trend?: string;
   color?: 'blue' | 'green' | 'amber' | 'red' | 'purple'
 }) => {
-  const bgColors = {
-    blue: "bg-blue-500/10 text-blue-500",
-    green: "bg-emerald-500/10 text-emerald-500",
-    amber: "bg-amber-500/10 text-amber-500",
-    red: "bg-rose-500/10 text-rose-500",
-    purple: "bg-purple-500/10 text-purple-500",
+  const iconColors = {
+    blue: "text-blue-500 bg-blue-500/10",
+    green: "text-emerald-500 bg-emerald-500/10",
+    amber: "text-amber-500 bg-amber-500/10",
+    red: "text-rose-500 bg-rose-500/10",
+    purple: "text-purple-500 bg-purple-500/10",
   };
 
   return (
-    <Card className="flex flex-col gap-4 card-hover overflow-hidden relative">
+    <Card className="hover:border-primary/20 p-8 group">
       <div className="flex justify-between items-start">
-        <div>
-          <p className="text-sm font-medium text-muted mb-1">{title}</p>
-          <h3 className="text-2xl font-bold text-white mb-1">{value}</h3>
+        <div className="space-y-1">
+          <p className="text-xs font-bold uppercase tracking-widest text-muted">{title}</p>
+          <h3 className="text-3xl font-bold tracking-tight text-white">{value}</h3>
           {trend && (
-            <p className="text-xs font-medium text-success flex items-center gap-1">
-              {trend}
-              <span className="text-muted font-normal">desde o mês passado</span>
-            </p>
+            <div className="flex items-center gap-2 mt-2">
+              <span className="text-xs font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-md">
+                {trend}
+              </span>
+              <span className="text-[10px] text-muted font-medium uppercase tracking-wider">vs mês anterior</span>
+            </div>
           )}
         </div>
-        <div className={cn("p-3 rounded-xl", bgColors[color])}>
-          <Icon size={24} />
+        <div className={cn("p-4 rounded-2xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6", iconColors[color])}>
+          <Icon size={24} strokeWidth={2.5} />
         </div>
       </div>
-      <div className={cn("absolute bottom-0 left-0 h-1 w-full opacity-50", 
-        color === 'blue' ? 'bg-blue-500' : 
-        color === 'green' ? 'bg-emerald-500' : 
-        color === 'amber' ? 'bg-amber-500' : 
-        color === 'red' ? 'bg-rose-500' : 'bg-purple-500'
-      )} />
     </Card>
   );
 };

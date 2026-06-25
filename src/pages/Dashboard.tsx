@@ -21,9 +21,12 @@ import {
   Cell
 } from 'recharts';
 import { Card, StatCard, Badge } from '../components/ui/Common';
-import { mockBricks, financialSummary, monthlyEvolution } from '../data/mockData';
+import { monthlyEvolution } from '../data/mockData';
+import { useBricks } from '../context/BrickContext';
 
 const Dashboard = () => {
+  const { bricks, stats } = useBricks();
+  
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
       <header className="space-y-2">
@@ -37,27 +40,27 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
           title="Capital Atual" 
-          value={`R$ ${financialSummary.currentCapital.toLocaleString()}`} 
+          value={`R$ ${stats.currentCapital.toLocaleString()}`} 
           icon={DollarSign} 
           trend="+12%" 
           color="blue"
         />
         <StatCard 
           title="Capital de Giro" 
-          value={`R$ ${financialSummary.workingCapital.toLocaleString()}`} 
+          value={`R$ ${stats.workingCapital.toLocaleString()}`} 
           icon={TrendingUp} 
           color="green"
         />
         <StatCard 
           title="Lucro Acumulado" 
-          value={`R$ ${financialSummary.accumulatedProfit.toLocaleString()}`} 
+          value={`R$ ${stats.accumulatedProfit.toLocaleString()}`} 
           icon={TrendingUp} 
           trend="+8%" 
           color="amber"
         />
         <StatCard 
           title="ROI Médio" 
-          value={`${financialSummary.averageROI}%`} 
+          value={`${stats.averageROI}%`} 
           icon={ArrowUpRight} 
           color="purple"
         />
@@ -139,7 +142,7 @@ const Dashboard = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-card-border">
-              {mockBricks.slice(0, 3).map((brick) => (
+              {bricks.slice(0, 3).map((brick) => (
                 <tr key={brick.id} className="group hover:bg-white/5 transition-colors">
                   <td className="py-4 font-medium text-white">{brick.name}</td>
                   <td className="py-4">

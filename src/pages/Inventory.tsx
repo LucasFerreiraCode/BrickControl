@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { Search, Plus, Filter, Calendar, TrendingUp, DollarSign, Package } from 'lucide-react';
 import { Card, Button, Badge } from '../components/ui/Common';
-import { mockBricks } from '../data/mockData';
+import { useBricks } from '../context/BrickContext';
+import { AddBrickModal } from '../components/modals/AddBrickModal';
 
 const Inventory = () => {
+  const { bricks } = useBricks();
   const [filter, setFilter] = useState('All');
   const [search, setSearch] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const filteredBricks = mockBricks.filter(brick => {
+  const filteredBricks = bricks.filter(brick => {
     const matchesFilter = filter === 'All' || brick.status === filter;
     const matchesSearch = brick.name.toLowerCase().includes(search.toLowerCase());
     return matchesFilter && matchesSearch;
@@ -20,7 +23,7 @@ const Inventory = () => {
           <h2 className="text-3xl font-bold text-white mb-2">Meus Bricks</h2>
           <p className="text-muted">Gerencie seu estoque e acompanhe o ROI de cada investimento.</p>
         </div>
-        <Button className="w-fit">
+        <Button className="w-fit" onClick={() => setIsModalOpen(true)}>
           <Plus size={20} />
           Novo Brick
         </Button>
@@ -120,12 +123,14 @@ const Inventory = () => {
           </div>
           <h3 className="text-xl font-bold text-white mb-2">Nenhum Brick encontrado</h3>
           <p className="text-muted max-w-xs">Você ainda não possui produtos cadastrados. Comece adicionando seu primeiro investimento!</p>
-          <Button className="mt-6">
+          <Button className="mt-6" onClick={() => setIsModalOpen(true)}>
             <Plus size={20} />
             Novo Brick
           </Button>
         </div>
       )}
+
+      <AddBrickModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 };

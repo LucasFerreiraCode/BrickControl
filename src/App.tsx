@@ -8,11 +8,13 @@ import Calculator from './pages/Calculator';
 import Reports from './pages/Reports';
 import Goals from './pages/Goals';
 import Profile from './pages/Profile';
+import { BrickProvider } from './context/BrickContext';
 
 function App() {
   return (
-    <Router>
-      <Layout>
+    <BrickProvider>
+      <Router>
+        <Layout>
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/inventory" element={<Inventory />} />
@@ -24,6 +26,7 @@ function App() {
         </Routes>
       </Layout>
     </Router>
+  </BrickProvider>
   );
 }
 

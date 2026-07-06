@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Save } from 'lucide-react';
 import { Button, Card } from '../ui/Common';
 import { useBricks } from '../../context/BrickContext';
+import { Brick } from '../../data/mockData';
 
-export const AddBrickModal = ({ isOpen, onClose, initialData }: { isOpen: boolean, onClose: () => void, initialData?: any }) => {
-  const { addBrick } = useBricks();
+export const EditBrickModal = ({ isOpen, onClose, brick }: { isOpen: boolean, onClose: () => void, brick: Brick | null }) => {
+  const { updateBrick } = useBricks();
   const [formData, setFormData] = useState({
     name: '',
     category: 'Eletrônicos',
@@ -12,34 +13,35 @@ export const AddBrickModal = ({ isOpen, onClose, initialData }: { isOpen: boolea
     fees: '0',
     shipping: '0',
     status: 'In Stock' as const,
-    image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&auto=format&fit=crop&q=60'
+    image: ''
   });
 
   useEffect(() => {
-    if (initialData && isOpen) {
-      setFormData(prev => ({
-        ...prev,
-        ...initialData,
-        purchasePrice: initialData.purchasePrice?.toString() || prev.purchasePrice,
-        fees: initialData.fees?.toString() || prev.fees,
-        shipping: initialData.shipping?.toString() || prev.shipping,
-      }));
+    if (brick) {
+      setFormData({
+        name: brick.name,
+        category: brick.category,
+        purchasePrice: brick.purchasePrice.toString(),
+        fees: brick.fees.toString(),
+        shipping: brick.shipping.toString(),
+        status: brick.status,
+        image: brick.image
+      });
     }
-  }, [initialData, isOpen]);
+  }, [brick]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !brick) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    addBrick({
+    updateBrick(brick.id, {
       name: formData.name,
       category: formData.category,
       purchasePrice: Number(formData.purchasePrice),
       fees: Number(formData.fees),
       shipping: Number(formData.shipping),
       status: formData.status,
-      image: formData.image,
-      purchaseDate: new Date().toISOString()
+      image: formData.image
     });
     onClose();
   };
@@ -48,7 +50,7 @@ export const AddBrickModal = ({ isOpen, onClose, initialData }: { isOpen: boolea
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
       <Card className="w-full max-w-lg p-8 space-y-6">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-white">Novo Brick</h2>
+          <h2 className="text-2xl font-bold text-white">Editar Brick</h2>
           <button onClick={onClose} className="text-muted hover:text-white transition-colors">
             <X size={24} />
           </button>
@@ -62,7 +64,6 @@ export const AddBrickModal = ({ isOpen, onClose, initialData }: { isOpen: boolea
               className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-primary/50 outline-none"
               value={formData.name}
               onChange={e => setFormData({...formData, name: e.target.value})}
-              placeholder="Ex: iPhone 13 128GB"
             />
           </div>
 
@@ -75,7 +76,6 @@ export const AddBrickModal = ({ isOpen, onClose, initialData }: { isOpen: boolea
                 className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-primary/50 outline-none"
                 value={formData.purchasePrice}
                 onChange={e => setFormData({...formData, purchasePrice: e.target.value})}
-                placeholder="R$ 0.00"
               />
             </div>
             <div className="space-y-1">
@@ -114,9 +114,22 @@ export const AddBrickModal = ({ isOpen, onClose, initialData }: { isOpen: boolea
             </div>
           </div>
 
+          <div className="space-y-1">
+              <label className="text-xs font-bold text-muted uppercase tracking-widest">Status</label>
+              <select 
+                className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-primary/50 outline-none appearance-none"
+                value={formData.status}
+                onChange={e => setFormData({...formData, status: e.target.value as any})}
+              >
+                <option value="In Stock">Em Estoque</option>
+                <option value="Reserved">Reservado</option>
+                <option value="Sold">Vendido</option>
+              </select>
+            </div>
+
           <Button type="submit" className="w-full py-4 mt-4">
             <Save size={20} />
-            Cadastrar Investimento
+            Salvar Alterações
           </Button>
         </form>
       </Card>

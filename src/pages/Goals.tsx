@@ -1,9 +1,13 @@
-import React from 'react';
-import { Target, TrendingUp, DollarSign, Wallet, Plus, ChevronRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { Target, TrendingUp, DollarSign, Wallet, Plus, ChevronRight, Trash2 } from 'lucide-react';
 import { Card, Button, Badge } from '../components/ui/Common';
-import { goals } from '../data/mockData';
+import { useBricks } from '../context/BrickContext';
+import { AddGoalModal } from '../components/modals/AddGoalModal';
 
 const Goals = () => {
+  const { goals, deleteGoal, stats } = useBricks();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <div className="space-y-8 animate-in slide-in-from-right-4 duration-700">
       <header className="flex justify-between items-center">
@@ -11,16 +15,22 @@ const Goals = () => {
           <h2 className="text-3xl font-bold text-white mb-2">Metas</h2>
           <p className="text-muted">Desafie-se e acompanhe sua evolução rumo à liberdade financeira.</p>
         </div>
-        <Button>
+        <Button onClick={() => setIsModalOpen(true)}>
           <Plus size={20} />
           Nova Meta
         </Button>
       </header>
 
       <div className="grid grid-cols-1 gap-6">
-        {goals.map((goal) => {
-          const percentage = Math.min((goal.current / goal.target) * 100, 100);
-          const deficit = goal.target - goal.current;
+        {goals.length > 0 ? goals.map((goal) => {
+          // Dynamic progress based on type
+          let currentVal = goal.current;
+          if (goal.type === 'Profit') currentVal = stats.accumulatedProfit;
+          if (goal.type === 'Revenue') currentVal = stats.totalIn;
+          if (goal.type === 'Capital') currentVal = stats.currentCapital;
+
+          const percentage = Math.min((currentVal / goal.target) * 100, 100);
+          const deficit = goal.target - currentVal;
           
           return (
             <Card key={goal.id} className="relative overflow-hidden group">
@@ -45,7 +55,7 @@ const Goals = () => {
 
                 <div className="flex-1 max-w-md w-full">
                   <div className="flex justify-between items-end mb-2">
-                    <span className="text-sm font-medium text-muted">Progresso</span>
+                    <span className="text-sm font-medium text-muted">Progresso (R$ {currentVal.toLocaleString()})</span>
                     <span className="text-lg font-bold text-white">{percentage.toFixed(0)}%</span>
                   </div>
                   <div className="w-full h-3 bg-slate-800 rounded-full overflow-hidden">
@@ -62,12 +72,20 @@ const Goals = () => {
 
                 <div className="text-right hidden md:block">
                   <p className="text-sm text-muted mb-1">Restante</p>
-                  <h5 className="text-lg font-bold text-white">R$ {deficit > 0 ? deficit.toLocaleString() : 'Concluído!'}</h5>
+                  <h5 className="text-lg font-bold text-white">{deficit > 0 ? `R$ ${deficit.toLocaleString()}` : 'Concluído!'}</h5>
                 </div>
 
-                <button className="p-2 rounded-lg hover:bg-white/5 text-muted hover:text-white transition-colors">
-                  <ChevronRight size={20} />
-                </button>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => { if(window.confirm('Excluir meta?')) deleteGoal(goal.id) }} 
+                    className="p-2 rounded-lg hover:bg-red-500/10 text-muted hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 size={20} />
+                  </button>
+                  <button className="p-2 rounded-lg hover:bg-white/5 text-muted hover:text-white transition-colors">
+                    <ChevronRight size={20} />
+                  </button>
+                </div>
               </div>
               
               {/* Background Glow */}
@@ -77,7 +95,14 @@ const Goals = () => {
               }`} />
             </Card>
           );
-        })}
+        }) : (
+          <div className="py-20 text-center bg-card border border-dashed border-slate-800 rounded-2xl">
+            <Target size={48} className="mx-auto text-muted mb-4" />
+            <h3 className="text-white font-bold">Nenhuma meta definida</h3>
+            <p className="text-muted text-sm mt-2">Defina seus objetivos financeiros para acompanhar seu progresso.</p>
+            <Button onClick={() => setIsModalOpen(true)} className="mt-6">Criar minha primeira meta</Button>
+          </div>
+        )}
       </div>
 
       {/* Rewards / Milestones */}
@@ -89,13 +114,15 @@ const Goals = () => {
           </div>
           <div>
             <h4 className="text-lg font-bold text-white">Revendedor Ouro</h4>
-            <p className="text-sm text-slate-400 max-w-md">Ao atingir R$ 15.000 de lucro total, você alcançará o nível Ouro. Faltam apenas R$ 2.500!</p>
+            <p className="text-sm text-slate-400 max-w-md">Ao atingir R$ 15.000 de lucro total, você alcançará o nível Ouro. Faltam apenas R$ {(15000 - stats.accumulatedProfit > 0 ? 15000 - stats.accumulatedProfit : 0).toLocaleString()}!</p>
           </div>
           <Button variant="secondary" className="ml-auto border-indigo-500/30">
             Ver Conquistas
           </Button>
         </div>
       </Card>
+
+      <AddGoalModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 };

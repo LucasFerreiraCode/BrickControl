@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { 
   DollarSign, 
   TrendingUp, 
@@ -17,16 +17,55 @@ import {
   Tooltip, 
   ResponsiveContainer,
   BarChart,
-  Bar,
+  Bar, 
   Cell
 } from 'recharts';
-import { Card, StatCard, Badge } from '../components/ui/Common';
-import { monthlyEvolution } from '../data/mockData';
+import { Card, StatCard, Badge, Button } from '../components/ui/Common';
 import { useBricks } from '../context/BrickContext';
+import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
-  const { bricks, stats } = useBricks();
+  const { bricks, stats, transactions } = useBricks();
   
+  // Dashboard Chart Data (Last 6 Months)
+  const chartData = useMemo(() => {
+    const months = Array.from({ length: 6 }, (_, i) => {
+      const d = new Date();
+      d.setMonth(d.getMonth() - (5 - i));
+      return {
+        month: d.toLocaleString('pt-BR', { month: 'short' }),
+        monthNum: d.getMonth(),
+        year: d.getFullYear(),
+        equity: 0,
+        profit: 0
+      };
+    });
+
+    // Calculate profit per month from transactions
+    transactions.forEach(t => {
+      const tDate = new Date(t.date);
+      const monthIdx = months.findIndex(m => m.monthNum === tDate.getMonth() && m.year === tDate.getFullYear());
+      if (monthIdx !== -1) {
+        if (t.type === 'In') {
+          // Check if it's a sale profit or just income
+          // For simplicity, we'll treat 'In' minus 'Out' as profit movement in this view
+          months[monthIdx].profit += t.value;
+        } else {
+          months[monthIdx].profit -= t.value;
+        }
+      }
+    });
+
+    // Simular evolução patrimonial (Capital de Giro + Lucro)
+    let runningEquity = stats.workingCapital; 
+    months.forEach(m => {
+      runningEquity += m.profit;
+      m.equity = runningEquity;
+    });
+
+    return months;
+  }, [transactions, stats.workingCapital]);
+
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
       <header className="space-y-2">
@@ -71,14 +110,13 @@ const Dashboard = () => {
         <Card className="lg:col-span-2">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-lg font-semibold text-white">Evolução Patrimonial</h3>
-            <select className="bg-white/5 border border-white/10 rounded-lg px-3 py-1 text-xs text-muted">
-              <option>Este Ano</option>
+            <select className="bg-white/5 border border-white/10 rounded-lg px-3 py-1 text-xs text-muted outline-none">
               <option>Últimos 6 meses</option>
             </select>
           </div>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={monthlyEvolution}>
+              <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="colorEquity" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#2563EB" stopOpacity={0.3}/>
@@ -91,6 +129,7 @@ const Dashboard = () => {
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }}
                   itemStyle={{ color: '#f8fafc' }}
+                  formatter={(value) => [`R$ ${Number(value).toLocaleString()}`, 'Patrimônio']}
                 />
                 <Area type="monotone" dataKey="equity" stroke="#2563EB" strokeWidth={3} fillOpacity={1} fill="url(#colorEquity)" />
               </AreaChart>
@@ -101,21 +140,23 @@ const Dashboard = () => {
         {/* Secondary Chart */}
         <Card>
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-lg font-semibold text-white">Lucro por Mês</h3>
+            <h3 className="text-lg font-semibold text-white">Balanço por Mês</h3>
           </div>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={monthlyEvolution}>
+              <BarChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
                 <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
                 <YAxis hide />
                 <Tooltip 
                   cursor={{fill: 'rgba(255, 255, 255, 0.05)'}}
                   contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }}
+                  itemStyle={{ color: '#f8fafc' }}
+                  formatter={(value) => [`R$ ${Number(value).toLocaleString()}`, 'Balanço']}
                 />
                 <Bar dataKey="profit" radius={[4, 4, 0, 0]}>
-                  {monthlyEvolution.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={index === monthlyEvolution.length - 1 ? '#2563EB' : '#334155'} />
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.profit >= 0 ? '#22c55e' : '#ef4444'} />
                   ))}
                 </Bar>
               </BarChart>
@@ -128,7 +169,9 @@ const Dashboard = () => {
       <Card className="p-8">
         <div className="flex justify-between items-center mb-8">
           <h3 className="text-2xl font-bold text-white tracking-tight">Últimos Bricks</h3>
-          <button className="text-primary text-sm font-bold uppercase tracking-widest hover:underline decoration-2 underline-offset-8">Ver todos</button>
+          <Link to="/inventory">
+            <button className="text-primary text-sm font-bold uppercase tracking-widest hover:underline decoration-2 underline-offset-8">Ver todos</button>
+          </Link>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left">
@@ -142,7 +185,7 @@ const Dashboard = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-card-border">
-              {bricks.slice(0, 3).map((brick) => (
+              {bricks.length > 0 ? bricks.slice().reverse().slice(0, 5).map((brick) => (
                 <tr key={brick.id} className="group hover:bg-white/5 transition-colors">
                   <td className="py-4 font-medium text-white">{brick.name}</td>
                   <td className="py-4">
@@ -152,11 +195,15 @@ const Dashboard = () => {
                   </td>
                   <td className="py-4 text-right text-muted">R$ {brick.purchasePrice.toLocaleString()}</td>
                   <td className="py-4 text-right text-muted">{brick.salePrice ? `R$ ${brick.salePrice.toLocaleString()}` : '-'}</td>
-                  <td className="py-4 text-right font-semibold text-success">
-                    {brick.salePrice ? `+ R$ ${(brick.salePrice - brick.purchasePrice - brick.fees - brick.shipping).toLocaleString()}` : '-'}
+                  <td className={`py-4 text-right font-semibold ${brick.salePrice ? 'text-success' : 'text-muted'}`}>
+                    {brick.salePrice ? `+ R$ ${(brick.salePrice - (brick.purchasePrice + brick.fees + brick.shipping)).toLocaleString()}` : '-'}
                   </td>
                 </tr>
-              ))}
+              )) : (
+                <tr>
+                  <td colSpan={5} className="py-10 text-center text-muted">Nenhum brick registrado.</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -170,7 +217,11 @@ const Dashboard = () => {
         </div>
         <div className="flex-1 relative z-10">
           <h4 className="text-2xl font-bold text-white mb-2 tracking-tight">Insight Inteligente</h4>
-          <p className="text-slate-400 text-lg leading-relaxed font-medium">Seu lucro médio aumentou <span className="text-emerald-400 font-bold">18%</span> em relação ao mês anterior. A categoria de celulares representa <span className="text-primary font-bold">72%</span> do seu faturamento atual.</p>
+          <p className="text-slate-400 text-lg leading-relaxed font-medium">
+            {stats.soldProducts > 0 
+              ? `Seu ROI médio de ${stats.averageROI}% está acima do mercado. Continue focando em produtos de alta rotatividade.`
+              : 'Comece a vender seus produtos para ver insights detalhados sobre sua performance de vendas.'}
+          </p>
         </div>
         <Badge variant="blue" className="relative z-10">Inteligência Artificial</Badge>
       </div>

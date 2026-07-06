@@ -4,11 +4,15 @@ import { Brick, Transaction, financialSummary as initialSummary, goals as initia
 interface BrickContextType {
   bricks: Brick[];
   transactions: Transaction[];
-  goals: any[];
+  goals: Goal[];
   addBrick: (brick: Omit<Brick, 'id'>) => void;
+  updateBrick: (id: string, brick: Partial<Brick>) => void;
   sellBrick: (id: string, salePrice: number, saleDate: string) => void;
   deleteBrick: (id: string) => void;
-  stats: typeof initialSummary;
+  addGoal: (goal: Omit<Goal, 'id'>) => void;
+  deleteGoal: (id: string) => void;
+  addTransaction: (transaction: Omit<Transaction, 'id'>) => void;
+  stats: any;
 }
 
 const BrickContext = createContext<BrickContextType | undefined>(undefined);
@@ -24,7 +28,7 @@ export const BrickProvider = ({ children }: { children: React.ReactNode }) => {
     return saved ? JSON.parse(saved) : [];
   });
 
-  const [goals, setGoals] = useState<any[]>(() => {
+  const [goals, setGoals] = useState<Goal[]>(() => {
     const saved = localStorage.getItem('bt_goals');
     return saved ? JSON.parse(saved) : initialGoals;
   });
@@ -38,6 +42,10 @@ export const BrickProvider = ({ children }: { children: React.ReactNode }) => {
   const addBrick = (newBrick: Omit<Brick, 'id'>) => {
     const brickWithId = { ...newBrick, id: Math.random().toString(36).substr(2, 9) };
     setBricks(prev => [...prev, brickWithId]);
+  };
+
+  const updateBrick = (id: string, updatedData: Partial<Brick>) => {
+    setBricks(prev => prev.map(b => b.id === id ? { ...b, ...updatedData } : b));
   };
 
   const sellBrick = (id: string, salePrice: number, saleDate: string) => {
@@ -63,6 +71,20 @@ export const BrickProvider = ({ children }: { children: React.ReactNode }) => {
     setBricks(prev => prev.filter(b => b.id !== id));
   };
 
+  const addGoal = (newGoal: Omit<Goal, 'id'>) => {
+    const goalWithId = { ...newGoal, id: Math.random().toString(36).substr(2, 9) };
+    setGoals(prev => [...prev, goalWithId]);
+  };
+
+  const deleteGoal = (id: string) => {
+    setGoals(prev => prev.filter(g => g.id !== id));
+  };
+
+  const addTransaction = (newT: Omit<Transaction, 'id'>) => {
+    const tWithId = { ...newT, id: Math.random().toString(36).substr(2, 9) };
+    setTransactions(prev => [tWithId, ...prev]);
+  };
+
   // Dynamic Stats
   const stats = React.useMemo(() => {
     const sold = bricks.filter(b => b.status === 'Sold');
@@ -81,18 +103,36 @@ export const BrickProvider = ({ children }: { children: React.ReactNode }) => {
         }, 0) / sold.length)
       : 0;
 
+    const totalIn = transactions.filter(t => t.type === 'In').reduce((acc, t) => acc + t.value, 0);
+    const totalOut = transactions.filter(t => t.type === 'Out').reduce((acc, t) => acc + t.value, 0);
+
     return {
-      currentCapital: workingCapital + accumulatedProfit, // Simplificado
+      currentCapital: workingCapital + totalIn - totalOut,
       workingCapital,
       accumulatedProfit,
       averageROI: Math.round(averageROI),
       soldProducts: sold.length,
-      stockProducts: inStock.length
+      stockProducts: inStock.length,
+      totalIn,
+      totalOut,
+      balance: totalIn - totalOut
     };
-  }, [bricks]);
+  }, [bricks, transactions]);
 
   return (
-    <BrickContext.Provider value={{ bricks, transactions, goals, addBrick, sellBrick, deleteBrick, stats }}>
+    <BrickContext.Provider value={{ 
+      bricks, 
+      transactions, 
+      goals, 
+      addBrick, 
+      updateBrick, 
+      sellBrick, 
+      deleteBrick, 
+      addGoal, 
+      deleteGoal, 
+      addTransaction,
+      stats 
+    }}>
       {children}
     </BrickContext.Provider>
   );

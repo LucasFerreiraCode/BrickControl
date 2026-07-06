@@ -1,9 +1,11 @@
 import React from 'react';
 import { User as UserIcon, Mail, Phone, Calendar, Shield, CreditCard, ShoppingBag, TrendingUp } from 'lucide-react';
 import { Card, Button, Badge } from '../components/ui/Common';
-import { financialSummary } from '../data/mockData';
+import { useBricks } from '../context/BrickContext';
 
 const Profile = () => {
+  const { stats } = useBricks();
+
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
       <header>
@@ -51,17 +53,17 @@ const Profile = () => {
             <Card className="text-center group hover:bg-primary/5 transition-colors">
               <ShoppingBag size={24} className="mx-auto text-primary mb-3 group-hover:scale-110 transition-transform" />
               <p className="text-sm text-muted mb-1">Vendas Totais</p>
-              <h4 className="text-2xl font-bold text-white">{financialSummary.soldProducts}</h4>
+              <h4 className="text-2xl font-bold text-white">{stats.soldProducts}</h4>
             </Card>
             <Card className="text-center group hover:bg-success/5 transition-colors">
               <TrendingUp size={24} className="mx-auto text-success mb-3 group-hover:scale-110 transition-transform" />
               <p className="text-sm text-muted mb-1">Lucro Histórico</p>
-              <h4 className="text-2xl font-bold text-white">R$ 18.250</h4>
+              <h4 className="text-2xl font-bold text-white">R$ {stats.accumulatedProfit.toLocaleString()}</h4>
             </Card>
             <Card className="text-center group hover:bg-amber-500/5 transition-colors">
               <CreditCard size={24} className="mx-auto text-amber-500 mb-3 group-hover:scale-110 transition-transform" />
               <p className="text-sm text-muted mb-1">Capital Acumulado</p>
-              <h4 className="text-2xl font-bold text-white">R$ 42.100</h4>
+              <h4 className="text-2xl font-bold text-white">R$ {stats.currentCapital.toLocaleString()}</h4>
             </Card>
           </div>
 

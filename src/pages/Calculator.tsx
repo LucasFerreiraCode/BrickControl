@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Calculator as CalcIcon, Percent, DollarSign, Truck, Tag, TrendingUp } from 'lucide-react';
 import { Card, Button, Badge } from '../components/ui/Common';
+import { AddBrickModal } from '../components/modals/AddBrickModal';
 
 const Calculator = () => {
   const [purchasePrice, setPurchasePrice] = useState<number>(1000);
   const [fees, setFees] = useState<number>(50);
   const [shipping, setShipping] = useState<number>(20);
   const [targetROI, setTargetROI] = useState<number>(30);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Results
   const [sellingPrice, setSellingPrice] = useState<number>(0);
@@ -127,10 +129,16 @@ const Calculator = () => {
               <TrendingUp size={14} className="text-success" />
               <span>Custo total do investimento: <strong>R$ {(purchasePrice + fees + shipping).toLocaleString()}</strong></span>
             </div>
-            <Button className="w-full mt-4">Salvar este Brick</Button>
+            <Button onClick={() => setIsModalOpen(true)} className="w-full mt-4">Salvar este Brick</Button>
           </div>
         </Card>
       </div>
+
+      <AddBrickModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        initialData={{ purchasePrice, fees, shipping }}
+      />
     </div>
   );
 };

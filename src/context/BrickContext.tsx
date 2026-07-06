@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Brick, Transaction, financialSummary as initialSummary, goals as initialGoals } from '../data/mockData';
+import { Brick, Transaction, Goal, financialSummary as initialSummary, goals as initialGoals } from '../data/mockData';
 
 interface BrickContextType {
   bricks: Brick[];
@@ -19,18 +19,33 @@ const BrickContext = createContext<BrickContextType | undefined>(undefined);
 
 export const BrickProvider = ({ children }: { children: React.ReactNode }) => {
   const [bricks, setBricks] = useState<Brick[]>(() => {
-    const saved = localStorage.getItem('bt_bricks');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('bt_bricks');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      console.error('Error loading bricks:', e);
+      return [];
+    }
   });
 
   const [transactions, setTransactions] = useState<Transaction[]>(() => {
-    const saved = localStorage.getItem('bt_transactions');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('bt_transactions');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      console.error('Error loading transactions:', e);
+      return [];
+    }
   });
 
   const [goals, setGoals] = useState<Goal[]>(() => {
-    const saved = localStorage.getItem('bt_goals');
-    return saved ? JSON.parse(saved) : initialGoals;
+    try {
+      const saved = localStorage.getItem('bt_goals');
+      return saved ? JSON.parse(saved) : initialGoals;
+    } catch (e) {
+      console.error('Error loading goals:', e);
+      return initialGoals;
+    }
   });
 
   useEffect(() => {

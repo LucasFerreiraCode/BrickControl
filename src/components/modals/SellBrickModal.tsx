@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, DollarSign } from 'lucide-react';
 import { Button, Card } from '../ui/Common';
 import { useBricks } from '../../context/BrickContext';
-import { Brick } from '../../data/mockData';
+import type { Brick } from '../../data/mockData';
 
 export const SellBrickModal = ({ isOpen, onClose, brick }: { isOpen: boolean, onClose: () => void, brick: Brick | null }) => {
   const { sellBrick } = useBricks();

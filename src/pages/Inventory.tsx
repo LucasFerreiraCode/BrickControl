@@ -5,7 +5,7 @@ import { useBricks } from '../context/BrickContext';
 import { AddBrickModal } from '../components/modals/AddBrickModal';
 import { EditBrickModal } from '../components/modals/EditBrickModal';
 import { SellBrickModal } from '../components/modals/SellBrickModal';
-import { Brick } from '../data/mockData';
+import type { Brick } from '../data/mockData';
 
 const Inventory = () => {
   const { bricks, deleteBrick } = useBricks();

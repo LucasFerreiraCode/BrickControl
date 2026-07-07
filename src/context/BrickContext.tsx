@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Brick, Transaction, Goal, financialSummary as initialSummary, goals as initialGoals } from '../data/mockData';
+import { type Brick, type Transaction, type Goal, financialSummary as initialSummary, goals as initialGoals } from '../data/mockData';
 
 interface BrickContextType {
   bricks: Brick[];

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Save } from 'lucide-react';
 import { Button, Card } from '../ui/Common';
 import { useBricks } from '../../context/BrickContext';
-import { Brick } from '../../data/mockData';
+import type { Brick } from '../../data/mockData';
 
 export const EditBrickModal = ({ isOpen, onClose, brick }: { isOpen: boolean, onClose: () => void, brick: Brick | null }) => {
   const { updateBrick } = useBricks();

@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Calculator as CalcIcon, Percent, DollarSign, Truck, Tag, TrendingUp, Sparkles, ChevronRight, Save } from 'lucide-react';
+import { Calculator as CalcIcon, Percent, DollarSign, TrendingUp, Sparkles, ChevronRight, Save } from 'lucide-react';
 import { Card, Button, Badge } from '../components/ui/Common';
 import { AddBrickModal } from '../components/modals/AddBrickModal';
 import { motion } from 'framer-motion';
 
 const Calculator = () => {
   const [purchasePrice, setPurchasePrice] = useState<number>(1000);
-  const [fees, setFees] = useState<number>(50);
-  const [shipping, setShipping] = useState<number>(20);
+
   const [targetROI, setTargetROI] = useState<number>(30);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -17,7 +16,7 @@ const Calculator = () => {
   const [margin, setMargin] = useState<number>(0);
 
   useEffect(() => {
-    const totalCost = purchasePrice + fees + shipping;
+    const totalCost = purchasePrice;
     const calculatedProfit = totalCost * (targetROI / 100);
     const calculatedSellingPrice = totalCost + calculatedProfit;
     const calculatedMargin = (calculatedProfit / calculatedSellingPrice) * 100;
@@ -25,7 +24,7 @@ const Calculator = () => {
     setSellingPrice(calculatedSellingPrice);
     setProfit(calculatedProfit);
     setMargin(calculatedMargin);
-  }, [purchasePrice, fees, shipping, targetROI]);
+  }, [purchasePrice, targetROI]);
 
   return (
     <div className="max-w-6xl mx-auto space-y-16 py-8">
@@ -79,32 +78,7 @@ const Calculator = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
-            <div className="space-y-3">
-              <label className="text-[10px] font-black text-muted uppercase tracking-[0.2em] flex items-center gap-2">
-                <Tag size={14} className="text-primary" /> Taxas de Importação/Plataforma
-              </label>
-              <input 
-                type="number" 
-                className="premium-input w-full"
-                value={fees}
-                onChange={(e) => setFees(Number(e.target.value))}
-                placeholder="R$ 0.00"
-              />
-            </div>
-            <div className="space-y-3">
-              <label className="text-[10px] font-black text-muted uppercase tracking-[0.2em] flex items-center gap-2">
-                <Truck size={14} className="text-primary" /> Custos Logísticos (Frete)
-              </label>
-              <input 
-                type="number" 
-                className="premium-input w-full"
-                value={shipping}
-                onChange={(e) => setShipping(Number(e.target.value))}
-                placeholder="R$ 0.00"
-              />
-            </div>
-          </div>
+
 
           <div className="space-y-6 pt-6">
             <div className="flex justify-between items-center">
@@ -151,11 +125,11 @@ const Calculator = () => {
               <div className="space-y-4 pt-10 border-t border-white/5">
                 <div className="flex justify-between items-center text-sm font-bold text-muted">
                   <span>Custo Operacional Total</span>
-                  <span className="text-white">R$ {(purchasePrice + fees + shipping).toLocaleString()}</span>
+                  <span className="text-white">R$ {purchasePrice.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm font-bold text-muted">
                   <span>Break-even Estimado</span>
-                  <span className="text-white">R$ {(purchasePrice + fees + shipping).toLocaleString()}</span>
+                  <span className="text-white">R$ {purchasePrice.toLocaleString()}</span>
                 </div>
               </div>
 
@@ -188,7 +162,7 @@ const Calculator = () => {
       <AddBrickModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        initialData={{ purchasePrice, fees, shipping }}
+        initialData={{ purchasePrice }}
       />
     </div>
   );

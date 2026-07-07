@@ -114,7 +114,7 @@
   }
 
   .nav-item {
-    @apply flex items-center gap-5 px-8 py-4.5 rounded-[1.5rem] text-muted font-black transition-all duration-500 relative group overflow-hidden;
+    @apply flex items-center gap-5 px-8 py-4.5 rounded-[1.5rem] text-muted font-black transition-all duration-500 relative overflow-hidden;
   }
 
   .nav-item:hover {

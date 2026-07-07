@@ -152,12 +152,12 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <Header />
-        <main className="lg:ml-0 pt-32 pb-12 px-6 lg:px-12 transition-all duration-500 overflow-x-hidden">
+        <main className="lg:ml-80 pt-32 pb-12 px-6 lg:px-12 transition-all duration-500 overflow-x-hidden">
           <motion.div 
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
-            className="max-w-7xl mx-auto"
+            className="max-w-[1600px] mx-auto"
           >
             {children}
           </motion.div>

@@ -64,22 +64,19 @@ export const BrickProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const sellBrick = (id: string, salePrice: number, saleDate: string) => {
-    setBricks(prev => prev.map(b => {
-      if (b.id === id) {
-        const profit = salePrice - b.purchasePrice - b.fees - b.shipping;
-        // Add transaction
-        const newTransaction: Transaction = {
-          id: Math.random().toString(36).substr(2, 9),
-          date: saleDate,
-          type: 'In',
-          description: `Venda: ${b.name}`,
-          value: salePrice
-        };
-        setTransactions(t => [newTransaction, ...t]);
-        return { ...b, salePrice, saleDate, status: 'Sold' as const };
-      }
-      return b;
-    }));
+    const brickToSell = bricks.find(b => b.id === id);
+    if (!brickToSell) return;
+
+    const newTransaction: Transaction = {
+      id: Math.random().toString(36).substr(2, 9),
+      date: saleDate,
+      type: 'In',
+      description: `Venda: ${brickToSell.name}`,
+      value: salePrice
+    };
+
+    setTransactions(t => [newTransaction, ...t]);
+    setBricks(prev => prev.map(b => b.id === id ? { ...b, salePrice, saleDate, status: 'Sold' as const } : b));
   };
 
   const deleteBrick = (id: string) => {

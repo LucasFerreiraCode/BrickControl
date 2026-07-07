@@ -45,43 +45,43 @@ export const AddBrickModal = ({ isOpen, onClose, initialData }: { isOpen: boolea
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-      <Card className="w-full max-w-lg p-8 space-y-6">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+      <Card className="w-full max-w-lg p-10 space-y-8">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-white">Novo Brick</h2>
-          <button onClick={onClose} className="text-muted hover:text-white transition-colors">
-            <X size={24} />
+          <h2 className="text-3xl font-black text-white tracking-tighter">Novo <span className="text-primary">Brick</span></h2>
+          <button onClick={onClose} className="p-2 text-muted hover:text-white transition-colors">
+            <X size={28} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-muted uppercase tracking-widest">Nome do Produto</label>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-muted uppercase tracking-[0.2em]">Nome do Produto</label>
             <input 
               required
-              className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-primary/50 outline-none"
+              className="premium-input w-full"
               value={formData.name}
               onChange={e => setFormData({...formData, name: e.target.value})}
               placeholder="Ex: iPhone 13 128GB"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-muted uppercase tracking-widest">Preço de Compra</label>
+          <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-muted uppercase tracking-[0.2em]">Preço de Compra</label>
               <input 
                 required
                 type="number"
-                className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-primary/50 outline-none"
+                className="premium-input w-full"
                 value={formData.purchasePrice}
                 onChange={e => setFormData({...formData, purchasePrice: e.target.value})}
                 placeholder="R$ 0.00"
               />
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-muted uppercase tracking-widest">Categoria</label>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-muted uppercase tracking-[0.2em]">Categoria</label>
               <select 
-                className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-primary/50 outline-none appearance-none"
+                className="premium-input w-full appearance-none"
                 value={formData.category}
                 onChange={e => setFormData({...formData, category: e.target.value})}
               >
@@ -93,30 +93,30 @@ export const AddBrickModal = ({ isOpen, onClose, initialData }: { isOpen: boolea
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-muted uppercase tracking-widest">Taxas</label>
+          <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-muted uppercase tracking-[0.2em]">Taxas</label>
               <input 
                 type="number"
-                className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-primary/50 outline-none"
+                className="premium-input w-full"
                 value={formData.fees}
                 onChange={e => setFormData({...formData, fees: e.target.value})}
               />
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-muted uppercase tracking-widest">Frete</label>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-muted uppercase tracking-[0.2em]">Frete</label>
               <input 
                 type="number"
-                className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-primary/50 outline-none"
+                className="premium-input w-full"
                 value={formData.shipping}
                 onChange={e => setFormData({...formData, shipping: e.target.value})}
               />
             </div>
           </div>
 
-          <Button type="submit" className="w-full py-4 mt-4">
-            <Save size={20} />
-            Cadastrar Investimento
+          <Button type="submit" className="w-full py-5 text-lg font-black uppercase tracking-widest mt-4">
+            <Save size={20} strokeWidth={3} />
+            Efetuar Registro
           </Button>
         </form>
       </Card>

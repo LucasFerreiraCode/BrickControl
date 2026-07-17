@@ -71,7 +71,7 @@ const Reports = () => {
         </Button>
       </header>
 
-      {/* Summary Card */}
+      {/* Cartão de Resumo */}
       <Card className="p-6 grid grid-cols-2 gap-4">
         <div>
           <h2 className="text-xl font-bold text-white">Resumo</h2>
@@ -82,21 +82,21 @@ const Reports = () => {
           {bestSale && (
             <div className="flex items-center">
               <Award size={20} className="text-amber-400" />
-              <span className="text-white ml-1">Top: {bestSale.name}</span>
+              <span className="text-white ml-1">Melhor: {bestSale.name}</span>
             </div>
           )}
           {highestROI && (
             <div className="flex items-center">
               <TrendingUp size={20} className="text-emerald-400" />
               <span className="text-white ml-1">
-                ROI: {Math.round(((highestROI.salePrice! - highestROI.purchasePrice - highestROI.fees - highestROI.shipping) / highestROI.purchasePrice) * 100}%
+                ROI: {Math.round(((highestROI.salePrice! - highestROI.purchasePrice - highestROI.fees - highestROI.shipping) / highestROI.purchasePrice) * 100)}%
               </span>
             </div>
           )}
         </div>
       </Card>
 
-      {/* Charts */}
+      {/* Gráficos */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* ROI by Category Bar */}
         <Card className="p-4">
@@ -127,7 +127,7 @@ const Reports = () => {
         </Card>
       </div>
 
-      {/* Detailed List */}
+      {/* Lista Detalhada */}
       <Card className="p-4">
         <h3 className="text-lg font-bold text-white mb-2">Vendas</h3>
         <ul className="space-y-1">

@@ -83,7 +83,7 @@ const Sidebar = () => {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 space-y-2 overflow-y-auto">
+          <nav className="flex-1 space-y-2 overflow-y-auto scrollbar-hide">
             <p className="px-6 text-[10px] font-black text-muted uppercase tracking-[0.2em] mb-6 opacity-50">Principais</p>
             {menuItems.map((item) => (
               <SidebarItem 

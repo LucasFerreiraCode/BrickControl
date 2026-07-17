@@ -120,7 +120,7 @@ const AIAdvisor = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Chat Area */}
-        <Card className="lg:col-span-8 p-0 bg-slate-900/40 flex flex-col overflow-hidden" style={{ minHeight: '70vh' }}>
+        <Card className="lg:col-span-8 p-0 bg-slate-900/40 flex flex-col overflow-hidden min-h-[70vh]">
           {/* Messages */}
           <div className="flex-1 p-8 space-y-6 overflow-y-auto">
             {messages.map((msg, i) => (

@@ -12,7 +12,7 @@ export const EditBrickModal = ({ isOpen, onClose, brick }: { isOpen: boolean, on
     purchasePrice: '',
     fees: '0',
     shipping: '0',
-    status: 'In Stock' as const,
+    status: 'In Stock' as Brick['status'],
     image: ''
   });
 

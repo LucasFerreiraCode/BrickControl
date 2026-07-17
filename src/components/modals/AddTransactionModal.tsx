@@ -6,8 +6,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export const AddTransactionModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
   const { addTransaction } = useBricks();
-  const [formData, setFormData] = useState({
-    type: 'Out' as const,
+  const [formData, setFormData] = useState<{
+    type: 'In' | 'Out';
+    description: string;
+    value: string;
+    date: string;
+  }>({
+    type: 'Out',
     description: '',
     value: '',
     date: new Date().toISOString().split('T')[0]

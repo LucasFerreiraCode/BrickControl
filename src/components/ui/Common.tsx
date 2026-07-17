@@ -47,7 +47,7 @@ export const Button = ({
   );
 };
 
-export const Badge = ({ children, variant = 'gray' }: { children: React.ReactNode; variant?: 'green' | 'blue' | 'yellow' | 'red' | 'gray' }) => {
+export const Badge = ({ children, variant = 'gray', className }: { children: React.ReactNode; variant?: 'green' | 'blue' | 'yellow' | 'red' | 'gray'; className?: string }) => {
   const colors = {
     green: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]",
     blue: "bg-primary/10 text-primary border-primary/20 shadow-[0_0_15px_rgba(139,92,246,0.1)]",
@@ -57,7 +57,7 @@ export const Badge = ({ children, variant = 'gray' }: { children: React.ReactNod
   };
 
   return (
-    <span className={cn("badge", colors[variant])}>
+    <span className={cn("badge", colors[variant], className)}>
       {children}
     </span>
   );

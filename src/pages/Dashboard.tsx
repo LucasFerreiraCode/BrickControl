@@ -1,15 +1,17 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { 
-  DollarSign, 
   TrendingUp, 
-  ShoppingBag, 
-  Package, 
   ArrowUpRight, 
-  ArrowDownRight,
-  TrendingDown,
   Activity,
   Layers,
-  Sparkles
+  Sparkles,
+  ShoppingCart,
+  Package,
+  Target,
+  Heart,
+  AlertTriangle,
+  Zap,
+  Crown
 } from 'lucide-react';
 import { 
   AreaChart, 
@@ -18,58 +20,89 @@ import {
   YAxis, 
   CartesianGrid, 
   Tooltip, 
-  ResponsiveContainer,
-  BarChart,
-  Bar, 
-  Cell
+  ResponsiveContainer
 } from 'recharts';
 import { Card, StatCard, Badge, Button } from '../components/ui/Common';
 import { useBricks } from '../context/BrickContext';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { monthlyEvolution } from '../data/mockData';
 
 const Dashboard = () => {
-  const { bricks, stats, transactions } = useBricks();
+  const { bricks, stats } = useBricks();
   
-  const chartData = useMemo(() => {
-    const months = Array.from({ length: 6 }, (_, i) => {
-      const d = new Date();
-      d.setMonth(d.getMonth() - (5 - i));
-      return {
-        month: d.toLocaleString('pt-BR', { month: 'short' }),
-        monthNum: d.getMonth(),
-        year: d.getFullYear(),
-        equity: 0,
-        profit: 0
-      };
-    });
+  // Saúde do Negócio insights
+  const insights = useMemo(() => {
+    const sold = bricks.filter(b => b.status === 'Sold');
+    const items: { icon: React.ElementType; text: string; color: string }[] = [];
 
-    transactions.forEach(t => {
-      const tDate = new Date(t.date);
-      const monthIdx = months.findIndex(m => m.monthNum === tDate.getMonth() && m.year === tDate.getFullYear());
-      if (monthIdx !== -1) {
-        if (t.type === 'In') months[monthIdx].profit += t.value;
-        else months[monthIdx].profit -= t.value;
+    // Modelo mais lucrativo
+    if (sold.length > 0) {
+      const profitByModel: Record<string, number> = {};
+      sold.forEach(b => {
+        const profit = (b.salePrice || 0) - b.totalInvested - (b.commission || 0) - (b.saleFees || 0) - (b.saleShipping || 0);
+        profitByModel[b.model] = (profitByModel[b.model] || 0) + profit;
+      });
+      const bestModel = Object.entries(profitByModel).sort((a, b) => b[1] - a[1])[0];
+      if (bestModel) {
+        items.push({
+          icon: Crown,
+          text: `O ${bestModel[0]} foi o modelo mais lucrativo, gerando R$ ${bestModel[1].toLocaleString()} de lucro.`,
+          color: 'text-amber-400'
+        });
       }
-    });
+    }
 
-    let runningEquity = stats.workingCapital; 
-    months.forEach(m => {
-      runningEquity += m.profit;
-      m.equity = runningEquity;
-    });
+    // Alerta de manutenção
+    const totalMaintenance = bricks.reduce((acc, b) => acc + b.maintenanceCost, 0);
+    if (totalMaintenance > 500) {
+      items.push({
+        icon: AlertTriangle,
+        text: `Você gastou R$ ${totalMaintenance.toLocaleString()} com manutenção. Priorize aparelhos em melhor estado.`,
+        color: 'text-amber-400'
+      });
+    }
 
-    return months;
-  }, [transactions, stats.workingCapital]);
+    // Projeção
+    if (stats.currentMonthLucro > 0) {
+      const dayOfMonth = new Date().getDate();
+      const projectedMonthly = Math.round((stats.currentMonthLucro / dayOfMonth) * 30);
+      items.push({
+        icon: Target,
+        text: `Se manter o ritmo atual, seu lucro projetado para o fim do mês será de R$ ${projectedMonthly.toLocaleString()}.`,
+        color: 'text-emerald-400'
+      });
+    }
+
+    // ROI médio
+    if (stats.averageROI > 0) {
+      items.push({
+        icon: Zap,
+        text: `Seu ROI médio por aparelho vendido é de ${stats.averageROI}%. ${stats.averageROI > 30 ? 'Excelente desempenho!' : 'Busque margem acima de 30%.'}`,
+        color: 'text-primary'
+      });
+    }
+
+    // Estoque parado
+    const inStock = bricks.filter(b => b.status === 'In Stock' || b.status === 'In Maintenance');
+    if (inStock.length > 3) {
+      items.push({
+        icon: Package,
+        text: `Você tem ${inStock.length} aparelhos parados. Considere precificar de forma mais competitiva.`,
+        color: 'text-rose-400'
+      });
+    }
+
+    return items.length > 0 ? items : [{
+      icon: Sparkles,
+      text: 'Comece a cadastrar seus aparelhos pra que possamos gerar insights inteligentes do seu negócio!',
+      color: 'text-primary'
+    }];
+  }, [bricks, stats]);
 
   const container = {
     hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
+    show: { opacity: 1, transition: { staggerChildren: 0.1 } }
   };
 
   return (
@@ -83,14 +116,13 @@ const Dashboard = () => {
         <div className="space-y-1">
           <Badge variant="blue">Dashboard Central</Badge>
           <h1 className="text-6xl font-black tracking-tighter text-white">
-            Performance <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">Geral</span>
+            Electro<span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">Control</span>
           </h1>
-          <p className="text-muted text-xl font-medium tracking-tight">Estatísticas em tempo real do seu portfólio de investimento.</p>
+          <p className="text-muted text-xl font-medium tracking-tight">Gestão inteligente de compra e venda de eletrônicos.</p>
         </div>
         <div className="flex gap-3">
-          <Button variant="secondary" className="px-8">Exportar PDF</Button>
           <Link to="/inventory">
-            <Button className="px-8">Novo Brick</Button>
+            <Button className="px-8">+ Novo Aparelho</Button>
           </Link>
         </div>
       </header>
@@ -101,11 +133,10 @@ const Dashboard = () => {
           title="Capital Total" 
           value={`R$ ${stats.currentCapital.toLocaleString()}`} 
           icon={Activity} 
-          trend="+14.2%" 
           color="blue"
         />
         <StatCard 
-          title="Investimento Ativo" 
+          title="Investido em Estoque" 
           value={`R$ ${stats.workingCapital.toLocaleString()}`} 
           icon={Layers} 
           color="purple"
@@ -114,15 +145,32 @@ const Dashboard = () => {
           title="Lucro Líquido" 
           value={`R$ ${stats.accumulatedProfit.toLocaleString()}`} 
           icon={TrendingUp} 
-          trend="+8.5%" 
+          trend={stats.averageROI > 0 ? `+${stats.averageROI}% ROI` : undefined}
           color="green"
         />
         <StatCard 
-          title="ROI Médio" 
-          value={`${stats.averageROI}%`} 
-          icon={Sparkles} 
+          title="Faturamento Total" 
+          value={`R$ ${stats.totalRevenue.toLocaleString()}`} 
+          icon={ShoppingCart} 
           color="amber"
         />
+      </div>
+
+      {/* Segunda fileira de KPIs */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        {[
+          { label: 'Em Estoque', value: stats.stockProducts, color: 'text-blue-400' },
+          { label: 'Reservados', value: stats.reservedProducts, color: 'text-amber-400' },
+          { label: 'Vendidos', value: stats.soldProducts, color: 'text-emerald-400' },
+          { label: 'Manutenção', value: stats.maintenanceProducts, color: 'text-rose-400' },
+          { label: 'Ticket Médio', value: `R$ ${stats.ticketMedio.toLocaleString()}`, color: 'text-purple-400' },
+          { label: 'Lucro do Mês', value: `R$ ${stats.currentMonthLucro.toLocaleString()}`, color: 'text-emerald-400' },
+        ].map((kpi, i) => (
+          <Card key={i} className="p-5 text-center">
+            <p className="text-[9px] font-black text-muted uppercase tracking-[0.15em] mb-1">{kpi.label}</p>
+            <p className={`text-2xl font-black ${kpi.color}`}>{kpi.value}</p>
+          </Card>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -133,18 +181,18 @@ const Dashboard = () => {
               <h3 className="text-2xl font-black text-white tracking-tighter mb-1">Evolução Patrimonial</h3>
               <p className="text-xs font-bold text-muted uppercase tracking-[0.2em]">Crescimento nos últimos 6 meses</p>
             </div>
-            <div className="flex bg-white/5 p-1 rounded-xl border border-white/5">
-              <button className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white bg-primary rounded-lg shadow-lg">Gráfico</button>
-              <button className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-muted hover:text-white transition-colors">Tabela</button>
-            </div>
           </div>
           <div className="h-[350px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData}>
+              <AreaChart data={monthlyEvolution}>
                 <defs>
                   <linearGradient id="colorEquity" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3}/>
                     <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
+                  </linearGradient>
+                  <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#34D399" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#34D399" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
@@ -163,67 +211,61 @@ const Dashboard = () => {
                   fontWeight={800} 
                   tickLine={false} 
                   axisLine={false} 
-                  tickFormatter={(value) => `R$${value}`} 
+                  tickFormatter={(value) => `R$${(value / 1000).toFixed(0)}k`} 
                 />
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #ffffff10', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}
                   itemStyle={{ color: '#f8fafc', fontWeight: 700 }}
                   labelStyle={{ fontWeight: 800, color: '#8b5cf6', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '10px' }}
-                  formatter={(value) => [`R$ ${Number(value).toLocaleString()}`, 'Total']}
+                  formatter={(value) => [`R$ ${Number(value).toLocaleString()}`, '']}
                 />
-                <Area type="monotone" dataKey="equity" stroke="#8B5CF6" strokeWidth={4} fillOpacity={1} fill="url(#colorEquity)" />
+                <Area type="monotone" dataKey="equity" stroke="#8B5CF6" strokeWidth={3} fillOpacity={1} fill="url(#colorEquity)" name="Patrimônio" />
+                <Area type="monotone" dataKey="profit" stroke="#34D399" strokeWidth={3} fillOpacity={1} fill="url(#colorProfit)" name="Lucro" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </Card>
 
-        {/* Secondary Info Grid - Bento Sidebar */}
-        <div className="lg:col-span-4 flex flex-col gap-6">
-          <Card className="flex-1 p-8 bg-gradient-to-br from-primary/10 to-transparent border-primary/10">
-            <h4 className="text-lg font-black text-white mb-6 flex items-center gap-2">
-              <Sparkles size={20} className="text-primary" />
-              Insight da Semana
-            </h4>
-            <p className="text-slate-300 font-medium leading-relaxed mb-6">
-              Seu portfólio de eletrônicos rendeu <span className="text-primary font-black">+24%</span> acima da média. Considere reinvestir o lucro acumulado para acelerar o crescimento.
-            </p>
-            <Button variant="secondary" className="w-full text-[10px] uppercase tracking-widest font-black py-3">Ver Detalhes</Button>
-          </Card>
+        {/* Saúde do Negócio */}
+        <Card className="lg:col-span-4 p-8 bg-gradient-to-br from-primary/5 to-transparent border-primary/10 flex flex-col">
+          <h4 className="text-lg font-black text-white mb-2 flex items-center gap-2">
+            <Heart size={20} className="text-rose-400" />
+            Saúde do Negócio
+          </h4>
+          <p className="text-[10px] font-bold text-muted uppercase tracking-[0.15em] mb-6">Insights baseados nos seus dados</p>
           
-          <Card className="p-8 bg-emerald-500/5 border-emerald-500/10">
-            <div className="flex justify-between items-center mb-6">
-              <h4 className="text-sm font-black text-white uppercase tracking-widest leading-none">Balanço</h4>
-              <Badge variant="green">Saudável</Badge>
-            </div>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-muted font-bold uppercase tracking-widest">Entradas</span>
-                <span className="text-emerald-400 font-black">R$ {stats.totalIn.toLocaleString()}</span>
-              </div>
-              <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                <div className="h-full bg-emerald-500 rounded-full" style={{ width: '75%' }} />
-              </div>
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-muted font-bold uppercase tracking-widest">Saídas</span>
-                <span className="text-rose-400 font-black">R$ {stats.totalOut.toLocaleString()}</span>
-              </div>
-              <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                <div className="h-full bg-rose-500 rounded-full" style={{ width: '25%' }} />
-              </div>
-            </div>
-          </Card>
-        </div>
+          <div className="space-y-4 flex-1 overflow-y-auto">
+            {insights.map((insight, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.15 }}
+                className="flex gap-3 p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-all"
+              >
+                <insight.icon size={18} className={`${insight.color} shrink-0 mt-0.5`} />
+                <p className="text-sm font-medium text-slate-300 leading-relaxed">{insight.text}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          <Link to="/ai-advisor" className="mt-6">
+            <Button variant="secondary" className="w-full text-[10px] uppercase tracking-widest font-black py-3">
+              <Sparkles size={14} /> Consultar IA
+            </Button>
+          </Link>
+        </Card>
       </div>
 
       {/* Recent Activity Table */}
       <Card className="p-10 bg-slate-900/30 overflow-hidden">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
           <div>
-            <h3 className="text-3xl font-black text-white tracking-tighter">Inventário Recente</h3>
-            <p className="text-xs font-bold text-muted uppercase tracking-[0.2em] mt-1">Últimas adições ao seu estoque</p>
+            <h3 className="text-3xl font-black text-white tracking-tighter">Últimos Aparelhos</h3>
+            <p className="text-xs font-bold text-muted uppercase tracking-[0.2em] mt-1">Últimas aquisições do seu estoque</p>
           </div>
           <Link to="/inventory">
-            <Button variant="ghost" className="text-[10px] uppercase font-black tracking-[0.2em]">Ver Inventário Completo <ArrowUpRight size={14} /></Button>
+            <Button variant="ghost" className="text-[10px] uppercase font-black tracking-[0.2em]">Ver Estoque Completo <ArrowUpRight size={14} /></Button>
           </Link>
         </div>
         
@@ -231,29 +273,40 @@ const Dashboard = () => {
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-white/5">
-                <th className="pb-6 text-[10px] font-black uppercase tracking-[0.2em] text-muted">Investimento</th>
+                <th className="pb-6 text-[10px] font-black uppercase tracking-[0.2em] text-muted">Aparelho</th>
+                <th className="pb-6 text-[10px] font-black uppercase tracking-[0.2em] text-muted">Marca</th>
                 <th className="pb-6 text-[10px] font-black uppercase tracking-[0.2em] text-muted">Status</th>
-                <th className="pb-6 text-[10px] font-black uppercase tracking-[0.2em] text-muted text-right">Preço Compra</th>
-                <th className="pb-6 text-[10px] font-black uppercase tracking-[0.2em] text-muted text-right">Lucro Realizado</th>
+                <th className="pb-6 text-[10px] font-black uppercase tracking-[0.2em] text-muted text-right">Investido</th>
+                <th className="pb-6 text-[10px] font-black uppercase tracking-[0.2em] text-muted text-right">Lucro</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {bricks.length > 0 ? bricks.slice().reverse().slice(0, 5).map((brick) => (
-                <tr key={brick.id} className="group hover:bg-white/[0.02] transition-colors">
-                  <td className="py-6 font-black text-white text-lg tracking-tight">{brick.name}</td>
-                  <td className="py-6">
-                    <Badge variant={brick.status === 'Sold' ? 'green' : 'gray'}>
-                      {brick.status === 'In Stock' ? 'Disponível' : brick.status === 'Reserved' ? 'Reservado' : 'Vendido'}
-                    </Badge>
-                  </td>
-                  <td className="py-6 text-right text-slate-400 font-bold">R$ {brick.purchasePrice.toLocaleString()}</td>
-                  <td className={`py-6 text-right font-black text-lg ${brick.salePrice ? 'text-emerald-400' : 'text-muted'}`}>
-                    {brick.salePrice ? `+ R$ ${(brick.salePrice - (brick.purchasePrice + brick.fees + brick.shipping)).toLocaleString()}` : '-'}
-                  </td>
-                </tr>
-              )) : (
+              {bricks.length > 0 ? bricks.slice().reverse().slice(0, 5).map((brick) => {
+                const profit = brick.salePrice 
+                  ? (brick.salePrice - brick.totalInvested - (brick.commission || 0) - (brick.saleFees || 0) - (brick.saleShipping || 0))
+                  : 0;
+                return (
+                  <tr key={brick.id} className="group hover:bg-white/[0.02] transition-colors">
+                    <td className="py-6 font-black text-white text-base tracking-tight">{brick.model}</td>
+                    <td className="py-6 text-sm text-slate-400 font-bold">{brick.brand}</td>
+                    <td className="py-6">
+                      <Badge variant={
+                        brick.status === 'Sold' ? 'green' : 
+                        brick.status === 'Reserved' ? 'yellow' : 
+                        brick.status === 'In Maintenance' ? 'red' : 'gray'
+                      }>
+                        {brick.status === 'In Stock' ? 'Disponível' : brick.status === 'Reserved' ? 'Reservado' : brick.status === 'In Maintenance' ? 'Manutenção' : 'Vendido'}
+                      </Badge>
+                    </td>
+                    <td className="py-6 text-right text-slate-400 font-bold">R$ {brick.totalInvested.toLocaleString()}</td>
+                    <td className={`py-6 text-right font-black text-lg ${brick.salePrice ? (profit >= 0 ? 'text-emerald-400' : 'text-rose-400') : 'text-muted'}`}>
+                      {brick.salePrice ? `${profit >= 0 ? '+' : ''} R$ ${profit.toLocaleString()}` : '-'}
+                    </td>
+                  </tr>
+                );
+              }) : (
                 <tr>
-                  <td colSpan={4} className="py-20 text-center text-muted font-bold uppercase tracking-widest opacity-30">Nenhum investimento registrado</td>
+                  <td colSpan={5} className="py-20 text-center text-muted font-bold uppercase tracking-widest opacity-30">Nenhum aparelho registrado</td>
                 </tr>
               )}
             </tbody>

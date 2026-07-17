@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Layout } from './components/ui/Layout';
 import Dashboard from './pages/Dashboard';
@@ -8,6 +8,7 @@ import Calculator from './pages/Calculator';
 import Reports from './pages/Reports';
 import Goals from './pages/Goals';
 import Profile from './pages/Profile';
+import AIAdvisor from './pages/AIAdvisor';
 import { BrickProvider } from './context/BrickContext';
 import { motion, useSpring, useMotionValue } from 'framer-motion';
 
@@ -15,7 +16,6 @@ function App() {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
-  // Smooth out the mouse movement
   const springX = useSpring(mouseX, { stiffness: 100, damping: 30 });
   const springY = useSpring(mouseY, { stiffness: 100, damping: 30 });
 
@@ -45,6 +45,7 @@ function App() {
               <Route path="/inventory" element={<Inventory />} />
               <Route path="/finance" element={<Finance />} />
               <Route path="/calculator" element={<Calculator />} />
+              <Route path="/ai-advisor" element={<AIAdvisor />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/goals" element={<Goals />} />
               <Route path="/profile" element={<Profile />} />

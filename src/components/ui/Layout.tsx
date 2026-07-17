@@ -8,15 +8,15 @@ import {
   User, 
   Settings, 
   Calculator,
-  ChevronRight,
   Menu,
   X,
   TrendingUp,
   Bell,
-  Search
+  Search,
+  Brain
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 interface SidebarItemProps {
   icon: React.ElementType;
@@ -46,9 +46,10 @@ const Sidebar = () => {
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
-    { icon: Package, label: 'Meus Bricks', path: '/inventory' },
+    { icon: Package, label: 'Estoque', path: '/inventory' },
     { icon: Wallet, label: 'Financeiro', path: '/finance' },
-    { icon: Calculator, label: 'Calculadora', path: '/calculator' },
+    { icon: Calculator, label: 'Simulador', path: '/calculator' },
+    { icon: Brain, label: 'Consultor IA', path: '/ai-advisor' },
     { icon: BarChart3, label: 'Relatórios', path: '/reports' },
     { icon: Target, label: 'Metas', path: '/goals' },
     { icon: User, label: 'Perfil', path: '/profile' },
@@ -76,13 +77,13 @@ const Sidebar = () => {
               <TrendingUp className="text-white" size={30} strokeWidth={2.5} />
             </div>
             <div>
-              <h1 className="text-3xl font-black tracking-tighter text-white leading-none">Brick<span className="text-primary">Control</span></h1>
+              <h1 className="text-3xl font-black tracking-tighter text-white leading-none">Electro<span className="text-primary">Control</span></h1>
               <span className="text-[9px] font-black text-muted uppercase tracking-[0.3em] block mt-1">Platform v2.0</span>
             </div>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 space-y-2">
+          <nav className="flex-1 space-y-2 overflow-y-auto">
             <p className="px-6 text-[10px] font-black text-muted uppercase tracking-[0.2em] mb-6 opacity-50">Principais</p>
             {menuItems.map((item) => (
               <SidebarItem 
@@ -100,9 +101,9 @@ const Sidebar = () => {
             <SidebarItem label="Configurações" icon={Settings} path="/settings" active={location.pathname === '/settings'} />
             <div className="mt-8 p-6 rounded-3xl bg-primary/5 border border-primary/10 relative overflow-hidden group">
               <div className="relative z-10">
-                <p className="text-xs font-bold text-white mb-1">Assinatura Pro</p>
-                <p className="text-[10px] text-muted mb-4 leading-relaxed font-medium">Desbloqueie relatórios avançados e IA.</p>
-                <button className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">Fazer Upgrade</button>
+                <p className="text-xs font-bold text-white mb-1">Membro Diamond</p>
+                <p className="text-[10px] text-muted mb-4 leading-relaxed font-medium">Você tem acesso total à nossa Inteligência Artificial.</p>
+                <Link to="/ai-advisor" className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">Acessar IA</Link>
               </div>
               <div className="absolute -right-4 -bottom-4 w-16 h-16 bg-primary/10 blur-2xl rounded-full" />
             </div>
@@ -121,7 +122,7 @@ const Header = () => {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-primary transition-colors" size={18} />
           <input 
             type="text" 
-            placeholder="Pesquisar bricks, transações..." 
+            placeholder="Pesquisar aparelhos, transações..." 
             className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/40 focus:bg-white/10 transition-all"
           />
         </div>
@@ -135,7 +136,7 @@ const Header = () => {
         <div className="flex items-center gap-3 pl-4 border-l border-white/10">
           <div className="text-right hidden sm:block">
             <p className="text-xs font-bold text-white leading-none">Lucas Ferreira</p>
-            <p className="text-[9px] text-muted uppercase tracking-widest mt-1">Investidor VIP</p>
+            <p className="text-[9px] text-muted uppercase tracking-widest mt-1">Revendedor Gold</p>
           </div>
           <div className="w-11 h-11 bg-gradient-to-br from-slate-700 to-slate-900 border border-white/10 rounded-2xl flex items-center justify-center overflow-hidden shadow-xl ring-2 ring-primary/20">
             <User className="text-white/40" size={20} />

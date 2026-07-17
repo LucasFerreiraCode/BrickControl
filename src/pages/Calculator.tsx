@@ -1,170 +1,176 @@
-import React, { useState, useEffect } from 'react';
-import { Calculator as CalcIcon, Percent, DollarSign, TrendingUp, Sparkles, ChevronRight, Save } from 'lucide-react';
+import { useState } from 'react';
+import { Calculator as CalcIcon, TrendingUp, AlertTriangle, ChevronRight, Sparkles } from 'lucide-react';
 import { Card, Button, Badge } from '../components/ui/Common';
-import { AddBrickModal } from '../components/modals/AddBrickModal';
 import { motion } from 'framer-motion';
 
 const Calculator = () => {
-  const [purchasePrice, setPurchasePrice] = useState<number>(1000);
+  const [form, setForm] = useState({
+    purchasePrice: '',
+    batteryReplace: '0',
+    screenReplace: '0',
+    shipping: '0',
+    otherCosts: '0',
+    expectedSalePrice: '',
+  });
 
-  const [targetROI, setTargetROI] = useState<number>(30);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const purchase = Number(form.purchasePrice) || 0;
+  const battery = Number(form.batteryReplace) || 0;
+  const screen = Number(form.screenReplace) || 0;
+  const shipping = Number(form.shipping) || 0;
+  const other = Number(form.otherCosts) || 0;
+  const sale = Number(form.expectedSalePrice) || 0;
 
-  // Results
-  const [sellingPrice, setSellingPrice] = useState<number>(0);
-  const [profit, setProfit] = useState<number>(0);
-  const [margin, setMargin] = useState<number>(0);
+  const totalInvestment = purchase + battery + screen + shipping + other;
+  const estimatedProfit = sale - totalInvestment;
+  const margin = sale > 0 ? ((estimatedProfit / sale) * 100).toFixed(1) : '0';
+  const roi = totalInvestment > 0 ? ((estimatedProfit / totalInvestment) * 100).toFixed(1) : '0';
 
-  useEffect(() => {
-    const totalCost = purchasePrice;
-    const calculatedProfit = totalCost * (targetROI / 100);
-    const calculatedSellingPrice = totalCost + calculatedProfit;
-    const calculatedMargin = (calculatedProfit / calculatedSellingPrice) * 100;
+  const getVerdict = () => {
+    if (!purchase || !sale) return { text: 'Preencha os valores de compra e venda estimada para ver a análise.', color: 'text-muted', type: 'neutral' };
+    const m = Number(margin);
+    if (m >= 25) return { text: `Excelente negociação! Margem de ${margin}% é acima da média do mercado. Vale muito a pena!`, color: 'text-emerald-400', type: 'success' };
+    if (m >= 15) return { text: `Boa margem de ${margin}%. Negociação sólida, prossiga com confiança.`, color: 'text-emerald-400', type: 'success' };
+    if (m >= 5) return { text: `Margem de ${margin}% é aceitável, mas considere negociar um valor menor na compra ou buscar outro aparelho com melhor potencial.`, color: 'text-amber-400', type: 'warning' };
+    if (m >= 0) return { text: `Margem muito baixa de apenas ${margin}%. Essa negociação apresenta alto risco. Recomendo buscar um preço de compra menor.`, color: 'text-amber-400', type: 'warning' };
+    return { text: `PREJUÍZO de R$ ${Math.abs(estimatedProfit).toLocaleString()}. Essa negociação não compensa. Busque outro aparelho ou negocie valores melhores.`, color: 'text-rose-400', type: 'danger' };
+  };
 
-    setSellingPrice(calculatedSellingPrice);
-    setProfit(calculatedProfit);
-    setMargin(calculatedMargin);
-  }, [purchasePrice, targetROI]);
+  const verdict = getVerdict();
+  const inputClass = "premium-input w-full";
+  const labelClass = "text-[10px] font-black text-muted uppercase tracking-[0.2em]";
 
   return (
-    <div className="max-w-6xl mx-auto space-y-16 py-8">
-      <header className="text-center space-y-4">
-        <div className="inline-flex items-center gap-3 px-6 py-2 bg-primary/10 border border-primary/20 rounded-full text-primary text-[10px] font-black uppercase tracking-[0.3em] floating">
-          <Sparkles size={14} /> Intelligence Simulator
-        </div>
-        <h1 className="text-7xl font-black tracking-tighter text-white">
-          Simulador de <span className="text-primary italic">Brick</span>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-12"
+    >
+      <header className="pb-6 border-b border-white/5">
+        <Badge variant="blue">Ferramenta</Badge>
+        <h1 className="text-6xl font-black tracking-tighter text-white mt-2">
+          Simulador <span className="text-primary italic">Inteligente</span>
         </h1>
-        <p className="text-muted text-xl max-w-2xl mx-auto font-medium">Analise a viabilidade de novos investimentos e calcule seu lucro planejado em segundos.</p>
+        <p className="text-muted text-xl font-medium tracking-tight mt-2">Simule a lucratividade de uma negociação antes de comprar.</p>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Setup Panel */}
-        <Card className="lg:col-span-12 xl:col-span-7 p-10 space-y-10 bg-slate-900/30">
-          <div className="flex items-center gap-4 border-b border-white/5 pb-6">
-            <CalcIcon size={24} className="text-primary" />
-            <h3 className="text-2xl font-black text-white tracking-tighter">Parâmetros do Ativo</h3>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-3">
-              <label className="text-[10px] font-black text-muted uppercase tracking-[0.2em] flex items-center gap-2">
-                <DollarSign size={14} className="text-primary" /> Valor de Compra
-              </label>
-              <div className="relative group">
-                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-primary font-black">R$</span>
-                <input 
-                  type="number" 
-                  className="premium-input w-full pl-14 text-xl"
-                  value={purchasePrice}
-                  onChange={(e) => setPurchasePrice(Number(e.target.value))}
-                />
-              </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Input Section */}
+        <Card className="lg:col-span-7 p-10 bg-slate-900/40 space-y-8">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+              <CalcIcon size={24} />
             </div>
+            <h3 className="text-2xl font-black text-white tracking-tighter">Dados da Negociação</h3>
+          </div>
 
-            <div className="space-y-3">
-              <label className="text-[10px] font-black text-muted uppercase tracking-[0.2em] flex items-center gap-2">
-                <Percent size={14} className="text-primary" /> Margem Desejada (ROI)
-              </label>
-              <div className="relative group">
-                <span className="absolute right-6 top-1/2 -translate-y-1/2 text-primary font-black">%</span>
-                <input 
-                  type="number" 
-                  className="premium-input w-full pr-14 text-xl"
-                  value={targetROI}
-                  onChange={(e) => setTargetROI(Number(e.target.value))}
-                />
-              </div>
+          <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className={labelClass}>Valor de Compra</label>
+              <input type="number" className={inputClass} value={form.purchasePrice} onChange={e => setForm({...form, purchasePrice: e.target.value})} placeholder="R$ 0" />
+            </div>
+            <div className="space-y-2">
+              <label className={labelClass}>Troca de Bateria</label>
+              <input type="number" className={inputClass} value={form.batteryReplace} onChange={e => setForm({...form, batteryReplace: e.target.value})} placeholder="R$ 0" />
             </div>
           </div>
 
-
-
-          <div className="space-y-6 pt-6">
-            <div className="flex justify-between items-center">
-              <h4 className="text-[10px] font-black text-muted uppercase tracking-[0.2em]">Ajuste Rápido de ROI</h4>
-              <span className="text-2xl font-black text-primary tracking-tighter">{targetROI}%</span>
+          <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className={labelClass}>Troca de Tela</label>
+              <input type="number" className={inputClass} value={form.screenReplace} onChange={e => setForm({...form, screenReplace: e.target.value})} placeholder="R$ 0" />
             </div>
-            <input 
-              type="range" 
-              min="5" 
-              max="200" 
-              step="5"
-              className="w-full h-1.5 bg-white/5 rounded-full appearance-none cursor-pointer accent-primary"
-              value={targetROI}
-              onChange={(e) => setTargetROI(Number(e.target.value))}
-            />
+            <div className="space-y-2">
+              <label className={labelClass}>Frete</label>
+              <input type="number" className={inputClass} value={form.shipping} onChange={e => setForm({...form, shipping: e.target.value})} placeholder="R$ 0" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className={labelClass}>Outros Custos</label>
+              <input type="number" className={inputClass} value={form.otherCosts} onChange={e => setForm({...form, otherCosts: e.target.value})} placeholder="R$ 0" />
+            </div>
+            <div className="space-y-2">
+              <label className={labelClass}>Valor Estimado de Venda</label>
+              <input type="number" className={inputClass} value={form.expectedSalePrice} onChange={e => setForm({...form, expectedSalePrice: e.target.value})} placeholder="R$ 0" />
+            </div>
           </div>
         </Card>
 
-        {/* Dynamic Results Card */}
-        <div className="lg:col-span-12 xl:col-span-5 space-y-8">
-          <Card className="p-10 bg-primary/5 border-primary/20 shadow-[0_0_50px_rgba(139,92,246,0.15)] relative overflow-hidden group">
-            <div className="relative z-10 space-y-12">
-              <div>
-                <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4">Resultado Sugerido</h3>
-                <p className="text-[10px] font-black text-muted uppercase tracking-widest opacity-60 mb-2">Preço de Venda Final</p>
-                <div className="flex items-baseline gap-2">
-                  <h4 className="text-7xl font-black text-white tracking-tighter">
-                    R$ {sellingPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                  </h4>
-                </div>
-              </div>
+        {/* Result Section */}
+        <div className="lg:col-span-5 space-y-6">
+          <Card className="p-10 bg-slate-900/60 space-y-8">
+            <h3 className="text-2xl font-black text-white tracking-tighter flex items-center gap-2">
+              <TrendingUp size={22} className="text-primary" />
+              Resultado da Simulação
+            </h3>
 
-              <div className="grid grid-cols-2 gap-6">
-                <div className="p-6 bg-emerald-500/10 rounded-3xl border border-emerald-500/10">
-                  <p className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-2">Lucro Neto</p>
-                  <p className="text-2xl font-black text-white tracking-tighter">R$ {profit.toLocaleString()}</p>
-                </div>
-                <div className="p-6 bg-amber-500/10 rounded-3xl border border-amber-500/10">
-                  <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest mb-2">Margem Líquida</p>
-                  <p className="text-2xl font-black text-white tracking-tighter">{margin.toFixed(1)}%</p>
-                </div>
+            <div className="grid grid-cols-2 gap-6">
+              <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/5 text-center">
+                <p className="text-[9px] font-black text-muted uppercase tracking-widest mb-2">Investimento Total</p>
+                <p className="text-2xl font-black text-white">R$ {totalInvestment.toLocaleString()}</p>
               </div>
-
-              <div className="space-y-4 pt-10 border-t border-white/5">
-                <div className="flex justify-between items-center text-sm font-bold text-muted">
-                  <span>Custo Operacional Total</span>
-                  <span className="text-white">R$ {purchasePrice.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between items-center text-sm font-bold text-muted">
-                  <span>Break-even Estimado</span>
-                  <span className="text-white">R$ {purchasePrice.toLocaleString()}</span>
-                </div>
+              <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/5 text-center">
+                <p className="text-[9px] font-black text-muted uppercase tracking-widest mb-2">Venda Esperada</p>
+                <p className="text-2xl font-black text-white">R$ {sale.toLocaleString()}</p>
               </div>
-
-              <Button onClick={() => setIsModalOpen(true)} className="w-full h-20 text-xl font-black shadow-primary/30">
-                <Save size={24} strokeWidth={3} />
-                Converter em Ativo
-              </Button>
             </div>
-            
-            {/* Background decorative glow */}
-            <div className="absolute top-0 right-0 w-80 h-80 bg-primary/10 blur-[100px] -translate-y-1/2 translate-x-1/2 rounded-full" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/5 blur-[80px] translate-y-1/2 -translate-x-1/2 rounded-full" />
+
+            <div className="grid grid-cols-3 gap-4">
+              <div className="text-center p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                <p className="text-[9px] font-black text-muted uppercase tracking-widest mb-1">Lucro Estimado</p>
+                <p className={`text-xl font-black ${estimatedProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  R$ {estimatedProfit.toLocaleString()}
+                </p>
+              </div>
+              <div className="text-center p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                <p className="text-[9px] font-black text-muted uppercase tracking-widest mb-1">Margem</p>
+                <p className={`text-xl font-black ${Number(margin) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  {margin}%
+                </p>
+              </div>
+              <div className="text-center p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                <p className="text-[9px] font-black text-muted uppercase tracking-widest mb-1">ROI</p>
+                <p className={`text-xl font-black ${Number(roi) >= 0 ? 'text-primary' : 'text-rose-400'}`}>
+                  {roi}%
+                </p>
+              </div>
+            </div>
+
+            {/* Progress */}
+            {totalInvestment > 0 && sale > 0 && (
+              <div className="space-y-2">
+                <div className="flex justify-between text-[9px] font-black text-muted uppercase tracking-widest">
+                  <span>Margem de Lucro</span>
+                  <span className={estimatedProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}>{margin}%</span>
+                </div>
+                <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.max(0, Math.min(Number(margin), 100))}%` }}
+                    transition={{ duration: 0.8 }}
+                    className={`h-full rounded-full ${Number(margin) >= 15 ? 'bg-gradient-to-r from-emerald-500 to-emerald-400' : Number(margin) >= 5 ? 'bg-gradient-to-r from-amber-500 to-amber-400' : 'bg-gradient-to-r from-rose-500 to-rose-400'}`}
+                  />
+                </div>
+              </div>
+            )}
           </Card>
 
-          <Card className="p-8 bg-white/[0.02] border-white/5 flex items-center justify-between group cursor-pointer hover:bg-white/[0.04] transition-all">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-primary group-hover:rotate-12 transition-transform">
-                <TrendingUp size={24} />
-              </div>
+          {/* AI Verdict */}
+          <Card className={`p-8 border ${verdict.type === 'success' ? 'bg-emerald-500/5 border-emerald-500/10' : verdict.type === 'warning' ? 'bg-amber-500/5 border-amber-500/10' : verdict.type === 'danger' ? 'bg-rose-500/5 border-rose-500/10' : 'bg-white/[0.02] border-white/5'}`}>
+            <div className="flex items-start gap-3">
+              <Sparkles size={20} className={verdict.color} />
               <div>
-                <h4 className="text-sm font-black text-white uppercase tracking-tight">Estratégias de ROI</h4>
-                <p className="text-xs font-bold text-muted">Consulte benchmarks do mercado</p>
+                <p className="text-[10px] font-black text-muted uppercase tracking-[0.2em] mb-2">Análise Inteligente</p>
+                <p className={`text-sm font-medium leading-relaxed ${verdict.color}`}>
+                  {verdict.text}
+                </p>
               </div>
             </div>
-            <ChevronRight className="text-muted group-hover:translate-x-2 transition-transform" />
           </Card>
         </div>
       </div>
-
-      <AddBrickModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        initialData={{ purchasePrice }}
-      />
-    </div>
+    </motion.div>
   );
 };
 
